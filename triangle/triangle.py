@@ -172,6 +172,8 @@ class Field:
             self.field[r][c]._connect_to(v)
             self.field[r+1][c] = v
             allocated.append(v)
+        else:
+            self.field[r][c]._connect_to(self.field[r+1][c])
 
         if self.field[r-1][c-1] is None:
             v = Vertex(next_idx)
@@ -179,6 +181,8 @@ class Field:
             self.field[r][c]._connect_to(v)
             self.field[r-1][c-1] = v
             allocated.append(v)
+        else:
+            self.field[r][c]._connect_to(self.field[r-1][c-1])
 
         if self.field[r-1][c+1] is None:
             v = Vertex(next_idx)
@@ -186,6 +190,8 @@ class Field:
             self.field[r][c]._connect_to(v)
             self.field[r-1][c+1] = v
             allocated.append(v)
+        else:
+            self.field[r][c]._connect_to(self.field[r-1][c+1])
 
         return (next_idx, allocated)
 
@@ -198,6 +204,8 @@ class Field:
             self.field[r][c]._connect_to(v)
             self.field[r-1][c] = v
             allocated.append(v)
+        else:
+            self.field[r][c]._connect_to(self.field[r-1][c])
 
         if self.field[r+1][c+1] is None:
             v = Vertex(next_idx)
@@ -205,6 +213,8 @@ class Field:
             self.field[r][c]._connect_to(v)
             self.field[r+1][c+1] = v
             allocated.append(v)
+        else:
+            self.field[r][c]._connect_to(self.field[r+1][c+1])
 
         if self.field[r+1][c-1] is None:
             v = Vertex(next_idx)
@@ -212,6 +222,8 @@ class Field:
             self.field[r][c]._connect_to(v)
             self.field[r+1][c-1] = v
             allocated.append(v)
+        else:
+            self.field[r][c]._connect_to(self.field[r+1][c-1])
 
         return (next_idx, allocated)
 
