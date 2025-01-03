@@ -1,2 +1,4 @@
 Pipfile.lock
 *.csv
+goldens/
+.DS_store

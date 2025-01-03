@@ -17,10 +17,7 @@ def generate_triangle_reflections(N):
     while len(work) != 0:
         vertex = work.pop()
 
-        length = g.shortest_path_to_root(vertex)
-        if length is None:
-            breakpoint()
-        if length >= N:
+        if vertex._distance >= N:
             continue
 
         next_vertex, added = f.add_neighbors(vertex, next_vertex)
@@ -57,9 +54,10 @@ class Q:
 
 
 class Vertex:
-    def __init__(self, idx, edges=[]):
+    def __init__(self, idx, distance=float('inf'), edges=[]):
         self.__edges = deepcopy(edges)
         self.__idx = idx
+        self._distance = distance
 
     def __lt__(self, other):
         return self.__idx < other.__idx
@@ -116,7 +114,7 @@ class Vertex:
 
 class Field:
     def __init__(self, starting_index=0):
-        self.root = Vertex(starting_index)
+        self.root = Vertex(starting_index, distance=0)
         self.field = [[self.root]]
 
     def locate(self, lookup):
@@ -156,6 +154,10 @@ class Field:
         else:
             return self.upright_y_around(start_point, next_idx)
 
+    def maybe_update_vertex_distance(self, v1, v2):
+        v1._distance = min(v1._distance, v2._distance + 1)
+        v2._distance = min(v2._distance, v1._distance + 1)
+
     def upside_down_y_around(self, vertex, next_idx):
         allocated = []
         r, c = self.locate(vertex)
@@ -185,6 +187,10 @@ class Field:
             allocated.append(v)
         else:
             self.field[r][c]._connect_to(self.field[r-1][c+1])
+
+        self.maybe_update_vertex_distance(self.field[r][c], self.field[r+1][c])
+        self.maybe_update_vertex_distance(self.field[r][c], self.field[r-1][c-1])
+        self.maybe_update_vertex_distance(self.field[r][c], self.field[r-1][c+1])
 
         return (next_idx, allocated)
 
@@ -218,6 +224,10 @@ class Field:
         else:
             self.field[r][c]._connect_to(self.field[r+1][c-1])
 
+        self.maybe_update_vertex_distance(self.field[r][c], self.field[r-1][c])
+        self.maybe_update_vertex_distance(self.field[r][c], self.field[r+1][c+1])
+        self.maybe_update_vertex_distance(self.field[r][c], self.field[r+1][c-1])
+
         return (next_idx, allocated)
 
 class Graph:
@@ -226,38 +236,6 @@ class Graph:
 
     def nodes_are_connected(self, idx1, idx2):
         return self.vertices[idx1]._is_connected_to(self.vertices[idx2])
-
-    def shortest_path_to_root(self, vertex):
-        if vertex._idx() == 0:
-            return 0
-
-        if self.nodes_are_connected(0, vertex._idx()):
-            return 1
-
-        q = Q()
-
-        # if all the nodes were in a straight line
-        max_distance = len(self.vertices) + 1
-        dist = {}
-        q.push(0, vertex)
-
-        for v in self.vertices:
-            dist[v._idx()] = max_distance
-
-        dist[vertex._idx()] = 0
-
-        while (node_to_check := q.pop()) != None:
-            if node_to_check._idx() == 0:
-                return dist[node_to_check._idx()]
-            for idx, edge in enumerate(node_to_check.edges()):
-                if not edge:
-                    continue
-                alt = dist[node_to_check._idx()] + 1
-                if alt < dist[idx]:
-                    dist[idx] = alt
-                    q.push(alt, self.vertices[idx])
-
-        return None
 
     def display(self):
         max_length = max([len(v.edges()) for v in self.vertices])
