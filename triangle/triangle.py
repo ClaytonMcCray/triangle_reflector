@@ -7,7 +7,7 @@ import heapq
 def generate_triangle_reflections(N):
     next_vertex = 0
     g = Graph()
-    f = Field(next_vertex)
+    f = Field(starting_index=next_vertex)
     next_vertex +=1 
 
     work = deque()
@@ -68,14 +68,7 @@ class Vertex:
         if other is None:
             return False
 
-        if len(self.__edges) == len(other.__edges):
-            return self.__edges == other.__edges
-
-        for left, right in zip_longest(self.__edges, other.__edges, fillvalue=False):
-            if left != right:
-                return False
-
-        return True
+        return self._idx() == other._idx()
 
     def __str__(self):
         edges = ", ".join(map(str, self.__edges))
